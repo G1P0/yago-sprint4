@@ -22,25 +22,31 @@ const (
 func parsePackage(data string) (int, time.Duration, error) {
 
 	if len(data) == 0 {
-		return 0, 0, errors.New("отсутствуют данные о прогулке")
+		return 0, 0, errors.New("missing walk data")
 	}
 
 	parts := strings.Split(data, ",")
 	if len(parts) != 2 {
-		return 0, 0, errors.New("некорректные данные о прогулке")
+		return 0, 0, errors.New("invalid walk data format")
 	}
 
 	stepsTmp := parts[0]
 	durationTmp := parts[1]
 
 	steps, err := strconv.Atoi(stepsTmp)
-	if err != nil || steps <= 0 {
-		return 0, 0, errors.New("некорректные данные о количестве пройденных шагов")
+	if err != nil {
+		return 0, 0, fmt.Errorf("invalid step value: %w", err)
+	}
+	if steps <= 0 {
+		return 0, 0, errors.New("step count must be greater than 0")
 	}
 
 	duration, err := time.ParseDuration(durationTmp)
-	if err != nil || duration <= 0 {
-		return 0, 0, errors.New("некорректные данные о продолжительности прогулки")
+	if err != nil {
+		return 0, 0, fmt.Errorf("invalid duration value: %w", err)
+	}
+	if duration <= 0 {
+		return 0, 0, errors.New("duration must be greater than 0")
 	}
 
 	return steps, duration, nil
@@ -51,7 +57,7 @@ func parsePackage(data string) (int, time.Duration, error) {
 func DayActionInfo(data string, weight, height float64) string {
 
 	if len(data) == 0 {
-		log.Println("отсутствуют данные о прогулке")
+		log.Println("missing walk data")
 		return ""
 	}
 
@@ -61,8 +67,12 @@ func DayActionInfo(data string, weight, height float64) string {
 		return ""
 	}
 
-	if weight <= 0 || height <= 0 {
-		log.Println("вес и рост должны быть больше 0")
+	if weight <= 0 {
+		log.Println("weight must be greater than 0")
+		return ""
+	}
+	if height <= 0 {
+		log.Println("height must be greater than 0")
 		return ""
 	}
 

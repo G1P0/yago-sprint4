@@ -22,26 +22,32 @@ const (
 func parseTraining(data string) (int, string, time.Duration, error) {
 
 	if len(data) == 0 {
-		return 0, "", 0, errors.New("отсутствуют данные о прогулке")
+		return 0, "", 0, errors.New("missing walk data")
 	}
 
 	parts := strings.Split(data, ",")
 	if len(parts) != 3 {
-		return 0, "", 0, errors.New("некорректные данные о прогулке")
+		return 0, "", 0, errors.New("invalid walk data format")
 	}
 
 	stepsTmp := parts[0]
 	steps, err := strconv.Atoi(stepsTmp)
-	if err != nil || steps <= 0 {
-		return 0, "", 0, errors.New("некорректные данные о количестве пройденных шагов")
+	if err != nil {
+		return 0, "", 0, fmt.Errorf("invalid step value: %w", err)
+	}
+	if steps <= 0 {
+		return 0, "", 0, errors.New("step count must be greater than 0")
 	}
 
 	activity := parts[1]
 
 	durationTmp := parts[2]
 	duration, err := time.ParseDuration(durationTmp)
-	if err != nil || duration <= 0 {
-		return 0, "", 0, errors.New("некорректные данные о продолжительности прогулки")
+	if err != nil {
+		return 0, "", 0, fmt.Errorf("invalid duration value: %w", err)
+	}
+	if duration <= 0 {
+		return 0, "", 0, errors.New("duration must be greater than 0")
 	}
 
 	return steps, activity, duration, nil
@@ -121,9 +127,19 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 // RunningSpentCalories возвращает количество калорий, потраченных при беге, и ошибку в случае её возникновения
 func RunningSpentCalories(steps int, weight, height float64, duration time.Duration) (float64, error) {
 
-	if steps <= 0 || weight <= 0 || height <= 0 || duration <= 0 {
-		return 0, errors.New("некорректные данные")
+	if steps <= 0 {
+		return 0, errors.New("steps must be greater than 0")
 	}
+	if weight <= 0 {
+		return 0, errors.New("weight must be greater than 0")
+	}
+	if height <= 0 {
+		return 0, errors.New("height must be greater than 0")
+	}
+	if duration <= 0 {
+		return 0, errors.New("duration must be greater than 0")
+	}
+
 	speed := meanSpeed(steps, height, duration)
 	minutes := duration.Minutes()
 	calories := (weight * speed * minutes) / minInH
@@ -133,9 +149,19 @@ func RunningSpentCalories(steps int, weight, height float64, duration time.Durat
 // WalkingSpentCalories возвращает количество калорий, потраченных при ходьбе, и ошибку в случае её возникновения
 func WalkingSpentCalories(steps int, weight, height float64, duration time.Duration) (float64, error) {
 
-	if steps <= 0 || weight <= 0 || height <= 0 || duration <= 0 {
-		return 0, errors.New("некорректные данные")
+	if steps <= 0 {
+		return 0, errors.New("steps must be greater than 0")
 	}
+	if weight <= 0 {
+		return 0, errors.New("weight must be greater than 0")
+	}
+	if height <= 0 {
+		return 0, errors.New("height must be greater than 0")
+	}
+	if duration <= 0 {
+		return 0, errors.New("duration must be greater than 0")
+	}
+
 	speed := meanSpeed(steps, height, duration)
 	minutes := duration.Minutes()
 	calories := (weight * speed * minutes) / minInH
